@@ -43,6 +43,10 @@ deno run --allow-net --allow-read server.ts
 deno run --allow-net --allow-read api.ts
 ```
 
+4. The application will be available at:
+   - Main application: http://localhost:8081
+   - API endpoints: http://localhost:8000
+
 ## Project Structure
 
 - `server.ts` - Main server file that handles the HTTP server setup
