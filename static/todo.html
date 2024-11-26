@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deno Todo App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3178c6;
+            --secondary: #235a9b;
+            --bg: #f5f5f5;
+            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .todo-app {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-top: 2rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background: var(--secondary);
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .todo-item.completed {
+            opacity: 0.7;
+        }
+
+        .todo-item.completed span {
+            text-decoration: line-through;
+        }
+
+        .todo-item input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .todo-text {
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .todo-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin: 0 12px;
+        }
+
+        .todo-item .delete-btn {
+            background: #dc3545;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .todo-item .delete-btn:hover {
+            background: #bb2d3b;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            padding: 2rem 0;
+        }
+
+        .error-message {
+            background: #dc3545;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="todo-app">
+            <h1>Deno Todo App Demo</h1>
+            <div id="errorMessage" class="error-message"></div>
+            <div class="input-group">
+                <input type="text" id="todoInput" placeholder="Voeg een nieuwe taak toe...">
+                <button onclick="addTodo()">Toevoegen</button>
+            </div>
+            <ul id="todoList" class="todo-list">
+                <!-- Todo items komen hier -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+
+        // Error handling
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Format date
+        function formatDate(date) {
+            return new Date(date).toLocaleString('nl-NL', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Fetch todos
+        async function fetchTodos() {
+            try {
+                const response = await fetch(`${API_URL}/todos`);
+                const todos = await response.json();
+                renderTodos(todos);
+            } catch (error) {
+                showError('Kon taken niet laden');
+            }
+        }
+
+        // Add todo
+        async function addTodo() {
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+
+            try {
+                const response = await fetch(`${API_URL}/todos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text })
+                });
+
+                if (!response.ok) throw new Error('Kon taak niet toevoegen');
+
+                input.value = '';
+                fetchTodos();
+            } catch (error) {
+                showError('Kon taak niet toevoegen');
+            }
+        }
+
+        // Toggle todo
+        async function toggleTodo(id, completed) {
+            try {
+                const response = await fetch(`${API_URL}/todos/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ completed })
+                });
+
+                if (!response.ok) throw new Error('Kon taak niet updaten');
+
+                fetchTodos();
+            } catch (error) {
+                showError('Kon taak niet updaten');
+            }
+        }
+
+        // Delete todo
+        async function deleteTodo(id) {
+            try {
+                const response = await fetch(`${API_URL}/todos/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Kon taak niet verwijderen');
+
+                fetchTodos();
+            } catch (error) {
+                showError('Kon taak niet verwijderen');
+            }
+        }
+
+        // Render todos
+        function renderTodos(todos) {
+            const list = document.getElementById('todoList');
+            
+            if (todos.length === 0) {
+                list.innerHTML = '<div class="empty-state">Geen taken toegevoegd</div>';
+                return;
+            }
+            
+            list.innerHTML = todos
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .map(todo => `
+                    <li class="todo-item ${todo.completed ? 'completed' : ''}">
+                        <input 
+                            type="checkbox" 
+                            ${todo.completed ? 'checked' : ''} 
+                            onchange="toggleTodo('${todo.id}', this.checked)"
+                        >
+                        <span class="todo-text">${todo.text}</span>
+                        <span class="todo-date">${formatDate(todo.createdAt)}</span>
+                        <button class="delete-btn" onclick="deleteTodo('${todo.id}')">
+                            Verwijderen
+                        </button>
+                    </li>
+                `).join('');
+        }
+
+        // Enter key support
+        document.getElementById('todoInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        // Initial load
+        fetchTodos();
+    </script>
+</body>
+</html>

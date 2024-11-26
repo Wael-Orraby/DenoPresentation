@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deno: Een Moderne JavaScript en TypeScript Runtime</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/white.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/plugin/highlight/monokai.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #3178c6;
+        --secondary: #235a9b;
+        --accent: #4ec9b0;
+        --text: #2c3e50;
+        --bg-gradient: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--secondary)
+        );
+        --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        --border-radius: 12px;
+      }
+
+      .reveal {
+        font-family: "Inter", sans-serif;
+        font-size: 28px;
+        color: var(--text);
+      }
+
+      .reveal h1,
+      .reveal h2,
+      .reveal h3 {
+        font-family: "Inter", sans-serif;
+        color: var(--primary);
+        text-transform: none;
+        letter-spacing: -0.02em;
+      }
+
+      .reveal h1 {
+        font-size: 2.2em;
+        font-weight: 600;
+      }
+      .reveal h2 {
+        font-size: 1.8em;
+        font-weight: 500;
+      }
+      .reveal h3 {
+        font-size: 1.4em;
+        font-weight: 500;
+      }
+
+      .reveal pre {
+        font-size: 0.75em;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin: 24px 0;
+      }
+
+      .reveal pre code {
+        padding: 20px !important;
+        line-height: 1.5;
+        background: #1e1e1e;
+      }
+
+      .comparison-table {
+        font-size: 0.75em;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 24px 0;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px 16px;
+        border: 1px solid rgba(49, 120, 198, 0.1);
+      }
+
+      .comparison-table th {
+        background: var(--bg-gradient);
+        color: white;
+        font-weight: 500;
+      }
+
+      .comparison-table tr:nth-child(even) {
+        background-color: rgba(49, 120, 198, 0.04);
+      }
+
+      .title-slide {
+        text-align: center;
+        background: var(--bg-gradient) !important;
+        color: white !important;
+      }
+
+      .title-slide h1 {
+        color: white;
+        font-size: 2.5em;
+        margin-bottom: 0.5em;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .title-slide p {
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0.5em 0;
+        font-size: 1.2em;
+      }
+
+      .title-slide small {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin: 24px 0;
+      }
+
+      .feature-card {
+        background: white;
+        padding: 24px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+      }
+
+      .feature-card h3 {
+        margin-top: 0;
+        margin-bottom: 16px;
+        color: var(--primary);
+      }
+
+      .feature-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .feature-list li {
+        margin: 12px 0;
+        padding-left: 28px;
+        position: relative;
+      }
+
+      .feature-list li:before {
+        content: "→";
+        color: var(--primary);
+        position: absolute;
+        left: 0;
+      }
+
+      .feature-list li strong {
+        color: var(--primary);
+        font-weight: 500;
+      }
+
+      code:not(pre code) {
+        color: var(--accent);
+        background: rgba(49, 120, 198, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+
+      .reveal .slides section {
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .reveal pre code {
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .comparison-table th,
+      .comparison-table td {
+        border: 2px solid rgba(49, 120, 198, 0.2);
+      }
+      .title-slide {
+        background: linear-gradient(135deg, #3178c6, #235a9b);
+        color: white;
+        text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      #myPhoto {
+        border-radius: 50%;
+        width: 20rem;
+        height: 20rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- Titelpagina -->
+        <section class="title-slide">
+          <h1>Deno: Een Moderne JavaScript en TypeScript Runtime</h1>
+          <p>Een nieuwe kijk op server-side JavaScript</p>
+
+          <img id="myPhoto" src="./MyPhoto.jpg" alt="Photo of Wael Orraby" />
+
+          <br />
+          <br />
+          <h1>Wael Orraby</h1>
+          <p>
+            <span id="datetime"></span>
+            <script>
+              function updateDateTime() {
+                const now = new Date();
+                const dateOptions = {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                };
+                const timeOptions = {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                };
+                const dateStr = now.toLocaleDateString("nl-NL", dateOptions);
+                const timeStr = now.toLocaleTimeString("nl-NL", timeOptions);
+                document.getElementById("datetime").textContent =
+                  dateStr + " - " + timeStr;
+              }
+              // Update elke seconde
+              updateDateTime();
+              setInterval(updateDateTime, 1000);
+            </script>
+          </p>
+        </section>
+
+        <!-- Slide 1: Wat is Deno? -->
+        <section>
+          <h2>Wat is Deno?</h2>
+          <div>
+            <h3>Definitie</h3>
+            <p>
+              Een moderne runtime voor JavaScript en TypeScript, ontworpen door
+              Ryan Dahl, de maker van Node.js.
+            </p>
+            <h3>Doelen van Deno</h3>
+            <ul>
+              <li>
+                <strong>Veiligheid:</strong> Sandbox-model met expliciete
+                permissies
+              </li>
+              <li>
+                <strong>Eenvoud:</strong> Geen node_modules, directe URL imports
+              </li>
+              <li>
+                <strong>Moderne tools:</strong> Ingebouwde testing, linting, en
+                meer
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Slide 2: Belangrijkste Kenmerken -->
+        <section>
+          <h2>Belangrijkste Kenmerken</h2>
+          <ul>
+            <li>
+              <strong>TypeScript-native:</strong> Werkt direct zonder
+              configuratie
+            </li>
+            <li>
+              <strong>Sandbox Security:</strong> Expliciete permissies vereist
+            </li>
+            <li>
+              <strong>Direct Imports:</strong>
+              <pre><code class="javascript">import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+serve(() => new Response("Hello from Deno!"));</code></pre>
+            </li>
+            <li><strong>Ingebouwde Tools:</strong> fmt, lint, test</li>
+          </ul>
+        </section>
+
+        <!-- Slide 3: Vergelijking met Node.js -->
+        <section>
+          <h2>Deno vs Node.js</h2>
+          <table class="comparison-table">
+            <tr>
+              <th>Kenmerk</th>
+              <th>Deno</th>
+              <th>Node.js</th>
+            </tr>
+            <tr>
+              <td>TypeScript</td>
+              <td>Native ondersteuning</td>
+              <td>Extra configuratie nodig</td>
+            </tr>
+            <tr>
+              <td>Security</td>
+              <td>Sandbox met permissies</td>
+              <td>Geen sandbox</td>
+            </tr>
+            <tr>
+              <td>Modules</td>
+              <td>Direct via URLs</td>
+              <td>Via npm/node_modules</td>
+            </tr>
+            <tr>
+              <td>Tools</td>
+              <td>Geïntegreerd</td>
+              <td>Externe tools nodig</td>
+            </tr>
+          </table>
+        </section>
+
+        <!-- Slide 4: Wat is nieuw in Deno 2.0 -->
+        <section>
+          <h2>Nieuw in Deno 2.0</h2>
+          <ul>
+            <li>
+              <strong>Verbeterde Compatibiliteit:</strong>
+              <ul>
+                <li>package.json ondersteuning</li>
+                <li>node_modules compatibiliteit</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Nieuwe Tools:</strong>
+              <ul>
+                <li>Private npm-registry support</li>
+                <li>Workspace ondersteuning</li>
+              </ul>
+            </li>
+            <li><strong>Verbeterde Performance</strong></li>
+            <li><strong>LTS Releases</strong></li>
+          </ul>
+        </section>
+
+        <!-- Slide 5: Meta-frameworks Vergelijking -->
+        <section>
+          <h2>Vergelijking met Meta-frameworks</h2>
+          <table class="comparison-table">
+            <tr>
+              <th>Kenmerk</th>
+              <th>Deno</th>
+              <th>Next.js</th>
+              <th>Nuxt.js</th>
+            </tr>
+            <tr>
+              <td>Basis</td>
+              <td>Runtime</td>
+              <td>React Framework</td>
+              <td>Vue Framework</td>
+            </tr>
+            <tr>
+              <td>Rendering</td>
+              <td>Client/Server</td>
+              <td>SSR, SSG, ISR</td>
+              <td>SSR, SSG</td>
+            </tr>
+            <tr>
+              <td>TypeScript</td>
+              <td>Native</td>
+              <td>Optioneel</td>
+              <td>Optioneel</td>
+            </tr>
+          </table>
+        </section>
+
+        <!-- Slide 6: Live Demo -->
+        <section>
+          <h2>Demo</h2>
+          <h3>Een eenvoudige Deno server</h3>
+          <pre><code class="typescript">import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+
+serve(async (req) => {
+  const html = await Deno.readFile("index.html");
+  return new Response(html, {
+    headers: { "content-type": "text/html" },
+  });
+});</code></pre>
+          <p>
+            <small
+              >Run met:
+              <code>deno run --allow-net --allow-read server.ts</code></small
+            >
+          </p>
+        </section>
+
+        <!-- Todo App Demo Slides -->
+        <section>
+          <h2>Praktische Demo: Todo App</h2>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3>Frontend Features</h3>
+              <ul class="feature-list">
+                <li>Moderne, responsieve UI</li>
+                <li>Real-time updates</li>
+                <li>Vanilla JavaScript</li>
+                <li>Animaties en transitions</li>
+              </ul>
+            </div>
+            <div class="feature-card">
+              <h3>Backend Features</h3>
+              <ul class="feature-list">
+                <li>Oak framework voor routing</li>
+                <li>TypeScript types</li>
+                <li>CRUD operaties</li>
+                <li>CORS ondersteuning</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Backend Implementatie</h2>
+          <pre><code class="typescript">// api.ts
+import { Application, Router } from "https://deno.land/x/oak/mod.ts";
+
+interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+const todos: Todo[] = [];
+const router = new Router();
+
+router.get("/todos", (ctx) => {
+  ctx.response.body = todos;
+});
+
+router.post("/todos", async (ctx) => {
+  const todo: Todo = await ctx.request.body().value;
+  todos.push(todo);
+  ctx.response.body = todo;
+});</code></pre>
+        </section>
+
+        <section>
+          <h2>Frontend Implementatie</h2>
+          <pre><code class="javascript">// Fetch todos
+async function fetchTodos() {
+  const response = await fetch('http://localhost:8000/todos');
+  const todos = await response.json();
+  renderTodos(todos);
+}
+
+// Add new todo
+async function addTodo(text) {
+  const todo = {
+    id: crypto.randomUUID(),
+    text,
+    completed: false
+  };
+  
+  await fetch('http://localhost:8000/todos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(todo)
+  });
+  
+  fetchTodos();
+}</code></pre>
+        </section>
+
+        <section>
+          <h2>Live Demo</h2>
+          <div style="text-align: left">
+            <p>De Todo app demonstreert:</p>
+            <ul>
+              <li>Deno's HTTP server capabilities</li>
+              <li>TypeScript integratie</li>
+              <li>Oak middleware framework</li>
+              <li>Frontend-Backend communicatie</li>
+            </ul>
+            <p>
+              <br />👉
+              <a
+                href="/todo"
+                target="_blank"
+                style="
+                  display: inline-block;
+                  padding: 10px 20px;
+                  color: white;
+                  background-color: #3178c6;
+                  text-decoration: none;
+                  border-radius: 8px;
+                  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                "
+              >
+                Bekijk Demo
+              </a>
+            </p>
+          </div>
+        </section>
+
+        <!-- Slide 7: Waarom Deno? -->
+        <section>
+          <h2>Waarom Deno Kiezen?</h2>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3>Voordelen</h3>
+              <ul class="feature-list">
+                <li>Moderne architectuur</li>
+                <li>Veiligheid eerst</li>
+                <li>Geen package manager nodig</li>
+              </ul>
+            </div>
+            <div class="feature-card">
+              <h3>Uitdagingen</h3>
+              <ul class="feature-list">
+                <li>Kleiner ecosysteem</li>
+                <li>Beperkte npm compatibiliteit</li>
+                <li>Leercurve voor Node.js devs</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 8: Conclusie -->
+        <section>
+          <h2>Conclusie</h2>
+          <ul>
+            <li>
+              <strong>Moderne runtime</strong> voor veilige, TypeScript-native
+              ontwikkeling
+            </li>
+            <li><strong>Groeiend ecosysteem</strong> met actieve community</li>
+            <li><strong>Toekomstgericht</strong> met focus op standaarden</li>
+            <li>
+              <strong>Ideaal voor:</strong> nieuwe projecten die veiligheid en
+              eenvoud waarderen
+            </li>
+          </ul>
+        </section>
+        <!-- Slide 9: Bedankt! -->
+        <section class="title-slide">
+          <h1>Bedankt!</h1>
+          <p>Zijn er nog vragen?</p>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/plugin/highlight/highlight.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+        plugins: [RevealHighlight],
+        transition: "slide",
+        backgroundTransition: "fade",
+        controls: true,
+        progress: true,
+        center: true,
+        width: "100%",
+        height: "100%",
+        margin: 0.04,
+        minScale: 0.2,
+        maxScale: 2.0,
+        controlsLayout: "edges",
+        navigationMode: "linear",
+        slideNumber: false,
+        touch: true,
+        hideInactiveCursor: true,
+        hideCursorTime: 3000,
+        viewDistance: 3,
+      });
+    </script>
+  </body>
+</html>
